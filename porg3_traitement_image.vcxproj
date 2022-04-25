@@ -141,6 +141,9 @@
   <ItemGroup>
     <ClCompile Include="porg3_traitement_image.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Headers.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
