@@ -3,46 +3,47 @@
 #include <vector>
 
 #include "Headers.h"
+#include "Bmp32.h"
 
 using namespace std;
 
-
-int main()
+void genererCle()
 {
-    vector<uint8_t> data{};
-    BMPFilheader fileHeader;
-    BMPInfoHeader infoHeader;
-    BMPColorHeader colorHeader;
+    std::ofstream outImage{ "cle.steg", std::ios_base::binary };
+    if (outImage)
+    {
+        char cle{ 0b01010011 };
+        outImage.write(&cle, 1);
+    }
+}
 
-    ifstream image{ "shapes.bmp", ios::in | ios::binary };
+void lireCle()
+{
+    char cle;
+    std::ifstream image{ "cle.steg", std::ios::in | std::ios::binary };
     if (image.is_open())
     {
-        image.read((char*)&fileHeader, sizeof(fileHeader));
-        image.read((char*)&infoHeader, sizeof(infoHeader));
-        image.read((char*)&colorHeader, sizeof(colorHeader));
-
-        data.resize(infoHeader.size_image);
-
-        image.seekg(fileHeader.offset, image.beg);
-        image.read((char*)data.data(), data.size());
+        image.read(&cle, 1);
 
         image.close();
     }
 
-    for (int i = 0; i < data.size(); i+=4)
+    for (int i = 7; i >= 0; i--)
     {
-        data[i] = 255;
-        data[i + 1] = 0;
-        data[i + 2] = 0;
-        data[i + 3] = 255;
+        std::cout << ((cle >> i) & 1);
     }
+}
 
-    ofstream outImage{ "test.bmp", ios_base::binary };
-    if (outImage)
-    {
-        outImage.write((char*)&fileHeader, sizeof(fileHeader));
-        outImage.write((char*)&infoHeader, sizeof(infoHeader));
-        outImage.write((char*)&colorHeader, sizeof(colorHeader));
-        outImage.write((char*)data.data(), data.size());
-    }
+
+int main()
+{
+    Bmp32 bmp{ "Shapes.bmp" };
+    Bmp32 bmp2{ 800, 600, 125, 33, 65 };
+    bmp2.DrawRect(400, 300, 100, 200);
+    bmp2.Encode("Ouvre tes yeux Simon ");
+    bmp2.Save("test2.bmp");
+    Bmp32 bmp3{ "test2.bmp" };
+    std::string msg{ bmp3.Decode() };
+
+    std::cout << "fin";
 }
